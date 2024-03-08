@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const UserList = () => {
   const [users, setUser] = useState([]);
@@ -7,19 +8,32 @@ const UserList = () => {
   useEffect(() => {
     getUsers();
   }, []);
-  
+
   const getUsers = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/users');
+   
+      const response = await axios.get("http://localhost:5000/users");
       setUser(response.data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
+  };
+
+  const deleteUser = async (id) => {
+    const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus pengguna ini?");
+    if (confirmDelete) {
+      try {
+        await axios.delete(`http://localhost:5000/users/${id}`);
+        getUsers();
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
+
   return (
-    <div className="columns mt- is-centered">
+    <div className="columns mt-5 is-centered">
       <div className="column is-half">
+        <Link to={`add`} className="button is-success">
+          Add New
+        </Link>
         <table className="table is-striped is-fullwidth">
           <thead>
             <tr>
@@ -38,8 +52,18 @@ const UserList = () => {
                 <td>{user.email}</td>
                 <td>{user.gender}</td>
                 <td>
-                  <button className="button is-small is-info">Edit</button>
-                  <button className="button is-small is-danger">Delete</button>
+                  <Link
+                    to={`edit/${user.id}`}
+                    className="button is-small is-info"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => deleteUser(user.id)}
+                    className="button is-small is-danger"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
